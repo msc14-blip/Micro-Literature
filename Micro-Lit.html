@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Microclimate Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #0a7b83;
+    --primary-dark:   #075f66;
+    --primary-mid:    #096e76;
+    --primary-light:  #0c9aa3;
+    --secondary:      #007cba;
+    --secondary-dark: #005f91;
+    --gold:           #e8c84a;
+    --gold-light:     #f0d878;
+    --white:          #ffffff;
+    --white-90:       rgba(255,255,255,0.9);
+    --white-65:       rgba(255,255,255,0.65);
+    --white-40:       rgba(255,255,255,0.4);
+    --white-15:       rgba(255,255,255,0.15);
+    --white-08:       rgba(255,255,255,0.08);
+    --border:         rgba(255,255,255,0.18);
+    --sidebar-w:      280px;
+  }
+
+  html, body { height: 100%; font-family: 'EB Garamond', Georgia, serif; overflow: hidden; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(135deg, transparent, transparent 40px, rgba(255,255,255,0.025) 40px, rgba(255,255,255,0.025) 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { display: none; height: 100vh; position: relative; z-index: 1; flex-direction: column; }
+  .page.active { display: flex; }
+
+  /* ── TOP NAV ── */
+  .top-nav {
+    flex-shrink: 0;
+    background: var(--primary-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 52px;
+    z-index: 10;
+  }
+
+  .top-nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    cursor: pointer;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+    background: none;
+    border: none;
+  }
+
+  .top-nav-brand span {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--gold-light);
+    opacity: 0.75;
+    display: block;
+    font-weight: 400;
+  }
+
+  .top-nav-links { display: flex; gap: 4px; align-items: center; }
+
+  .nav-link {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--white-65);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 2px;
+    transition: all 0.15s;
+  }
+
+  .nav-link:hover { color: var(--white); background: var(--white-08); }
+  .nav-link.active { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+  .nav-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
+
+  /* ══════════════════════════════
+     LANDING PAGE
+  ══════════════════════════════ */
+  #page-landing { background: var(--primary); overflow-y: auto; }
+  #page-landing::-webkit-scrollbar { width: 6px; }
+  #page-landing::-webkit-scrollbar-thumb { background: var(--white-40); }
+
+  .landing-hero {
+    padding: 72px 48px 56px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .landing-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 16px;
+  }
+
+  .landing-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 60px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 18px;
+  }
+
+  .landing-subtitle {
+    font-family: 'EB Garamond', serif;
+    font-size: 21px;
+    font-style: italic;
+    color: var(--white-65);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .landing-dates {
+    display: inline-flex;
+    gap: 20px;
+    align-items: center;
+    background: var(--white-08);
+    border: 1px solid var(--border);
+    padding: 11px 24px;
+    border-radius: 2px;
+    margin-bottom: 36px;
+  }
+
+  .landing-date-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.75;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .landing-date-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--white-90);
+  }
+
+  .landing-date-sep { color: var(--border); font-size: 18px; }
+
+  .landing-cta {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary-dark);
+    background: var(--gold);
+    padding: 13px 28px;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s;
+    margin-right: 10px;
+  }
+
+  .landing-cta:hover { background: var(--gold-light); }
+  .landing-cta:focus-visible { outline: 2px solid var(--primary-dark); outline-offset: 2px; }
+
+  .landing-cta-outline {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white-65);
+    background: transparent;
+    padding: 12px 24px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+  }
+
+  .landing-cta-outline:hover { color: var(--white); border-color: var(--white-40); }
+
+  .landing-body { max-width: 780px; margin: 0 auto; padding: 60px 48px 80px; }
+
+  .landing-section { margin-bottom: 52px; }
+
+  .landing-section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.75;
+    margin-bottom: 12px;
+  }
+
+  .landing-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .landing-section p {
+    font-family: 'EB Garamond', serif;
+    font-size: 19px;
+    line-height: 1.85;
+    color: var(--white-65);
+    margin-bottom: 12px;
+  }
+
+  .landing-section a { color: var(--gold-light); text-decoration: underline; text-underline-offset: 3px; }
+
+  .landing-divider { border: none; border-top: 1px solid var(--border); margin-bottom: 52px; }
+
+  .locations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+
+  .location-card {
+    background: var(--white-08);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 14px 16px;
+  }
+
+  .location-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--white-90);
+    margin-bottom: 4px;
+  }
+
+  .location-card-desc {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: #e0f7fa;
+    line-height: 1.5;
+  }
+
+  .timeline {
+    border-left: 2px solid rgba(232,200,74,0.3);
+    padding-left: 24px;
+    margin-top: 14px;
+  }
+
+  .timeline-item { position: relative; padding-bottom: 24px; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -30px; top: 6px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.7;
+  }
+
+  .timeline-date {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 3px;
+  }
+
+  .timeline-event {
+    font-family: 'EB Garamond', serif;
+    font-size: 17px;
+    color: var(--white-90);
+    line-height: 1.5;
+  }
+
+  /* ══════════════════════════════
+     COLLECTION PAGE
+  ══════════════════════════════ */
+  #page-collection { background: var(--primary); }
+
+  .collection-layout { display: flex; flex: 1; overflow: hidden; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--primary);
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--primary-dark);
+  }
+
+  .masthead {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+    opacity: 0.8;
+  }
+
+  .sidebar-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--white); }
+  .sidebar-subtitle { font-size: 12px; color: var(--white-65); font-style: italic; margin-top: 2px; }
+
+  .about-pill-wrap { border-bottom: 1px solid var(--border); }
+
+  .about-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 22px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    transition: background 0.15s;
+  }
+
+  .about-pill:hover { background: var(--white-08); }
+  .about-arrow { font-size: 14px; color: var(--gold); opacity: 0.6; }
+
+  .search-wrap {
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--primary-dark);
+  }
+
+  .search-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white-65);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--white-15);
+    border: 1px solid var(--border);
+    padding: 7px 10px;
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    color: var(--white);
+    outline: none;
+    border-radius: 2px;
+    transition: border-color 0.2s;
+  }
+
+  .search-input::placeholder { color: var(--white-40); font-style: italic; }
+  .search-input:focus { border-color: var(--gold); }
+
+  .filter-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--primary-dark);
+  }
+
+  .filter-tab {
+    flex: 1;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #e0f7fa;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .filter-tab:hover { color: var(--white); }
+  .filter-tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .nav-section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 12px 22px 8px;
+    border-bottom: 1px solid var(--white-08);
+  }
+
+  .author-menu { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .author-menu::-webkit-scrollbar { width: 3px; }
+  .author-menu::-webkit-scrollbar-thumb { background: var(--white-40); }
+
+  .author-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 22px;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--white-08);
+    cursor: pointer;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 14px;
+    color: var(--white-65);
+    text-align: left;
+    transition: all 0.18s;
+    gap: 9px;
+    line-height: 1.3;
+  }
+
+  .author-btn .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--gold); opacity: 0.4; flex-shrink: 0; transition: opacity 0.18s;
+  }
+
+  .author-btn:hover { background: var(--white-08); color: var(--white-90); }
+  .author-btn:hover .dot { opacity: 0.8; }
+  .author-btn.active { border-left-color: var(--gold); background: rgba(232,200,74,0.12); color: var(--white); font-style: italic; }
+  .author-btn.active .dot { opacity: 1; background: var(--gold); }
+  .author-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+  .reader {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+  }
+
+  .reader::-webkit-scrollbar { width: 6px; }
+  .reader::-webkit-scrollbar-thumb { background: rgba(10,123,131,0.2); }
+
+  .reader-inner { max-width: 620px; width: 100%; padding: 60px 52px 80px; animation: fadeIn 0.45s ease; }
+  .reader-inner--wide { max-width: 960px; padding: 60px 52px 80px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .poem-title { font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 800; line-height: 1.12; color: var(--primary); margin-bottom: 8px; letter-spacing: -0.5px; }
+  .poem-meta { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .poem-author { font-size: 16px; color: var(--primary-light); font-style: italic; }
+  .meta-dot { color: rgba(10,123,131,0.35); font-size: 16px; }
+  .poem-year { font-family: 'Cinzel', serif; font-size: 11px; color: rgba(10,123,131,0.6); letter-spacing: 1.5px; }
+
+  .poem-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+
+  .poem-tag {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(10,123,131,0.25);
+    color: var(--primary);
+    opacity: 0.7;
+  }
+
+  .poem-tag.location { border-color: rgba(0,124,186,0.3); color: var(--secondary); }
+  .poem-tag.science { border-color: rgba(232,200,74,0.5); color: #7a6010; }
+
+  .poem-divider {
+    border: none;
+    border-top: 1px solid rgba(10,123,131,0.2);
+    margin-bottom: 40px;
+    position: relative;
+    overflow: visible;
+  }
+
+  .poem-divider::after {
+    content: '⛰';
+    position: absolute;
+    top: -18px; left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    padding: 0 10px;
+    font-size: 22px;
+    line-height: 1;
+    opacity: 0.85;
+    color: var(--primary);
+  }
+
+  .poem-body { font-family: 'EB Garamond', Georgia, serif; font-size: 20px; line-height: 1.9; color: var(--primary); }
+  .stanza { margin-bottom: 32px; }
+
+  .poem-footer {
+    margin-top: 52px;
+    padding: 18px 20px;
+    background: rgba(10,123,131,0.05);
+    border-left: 3px solid var(--gold);
+    font-size: 13.5px;
+    font-style: italic;
+    color: rgba(10,123,131,0.7);
+    line-height: 1.7;
+  }
+
+  .poem-source {
+    margin-top: 16px;
+    padding: 18px 20px;
+    background: rgba(10,123,131,0.04);
+    border: 1px solid rgba(10,123,131,0.12);
+    border-radius: 2px;
+  }
+
+  .poem-source-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(10,123,131,0.45);
+    margin-bottom: 8px;
+  }
+
+  .poem-source-body {
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(10,123,131,0.6);
+  }
+
+  .poem-source-body a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .poem-statement {
+    margin-top: 16px;
+    padding: 18px 20px;
+    background: rgba(10,123,131,0.03);
+    border: 1px solid rgba(10,123,131,0.12);
+    border-radius: 2px;
+  }
+
+  .poem-statement-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(10,123,131,0.45);
+    margin-bottom: 8px;
+  }
+
+  .poem-statement-body {
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(10,123,131,0.6);
+  }
+
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; text-align: center; gap: 14px; }
+  .empty-glyph { font-size: 48px; color: var(--primary); opacity: 0.25; }
+  .empty-text { font-family: 'Playfair Display', serif; font-size: 22px; font-style: italic; color: var(--primary); opacity: 0.45; }
+  .empty-sub { font-size: 14px; color: #3a7a7f; }
+
+  /* ══════════════════════════════
+     MAP PAGE
+  ══════════════════════════════ */
+  #page-map { background: #f0f4f0; }
+
+  .map-layout { display: flex; flex: 1; overflow: hidden; }
+
+  .map-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--primary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .map-sidebar-header {
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--primary-dark);
+    flex-shrink: 0;
+  }
+
+  .map-sidebar-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+  .map-sidebar-sub { font-family: 'EB Garamond', serif; font-size: 13px; font-style: italic; color: #e0f7fa; }
+
+  .map-piece-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .map-piece-list::-webkit-scrollbar { width: 3px; }
+  .map-piece-list::-webkit-scrollbar-thumb { background: var(--white-40); }
+
+  .map-piece-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    padding: 11px 20px;
+    border: none;
+    border-bottom: 1px solid var(--white-08);
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .map-piece-item:hover { background: var(--white-08); }
+  .map-piece-item.active { border-left-color: var(--gold); background: rgba(232,200,74,0.1); }
+  .map-piece-item:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .map-popup-btn:focus-visible { outline: 2px solid var(--primary-dark); outline-offset: 2px; }
+
+  .map-piece-title { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--white-90); margin-bottom: 2px; line-height: 1.3; }
+  .map-piece-author { font-size: 11px; font-style: italic; color: var(--white-65); margin-bottom: 3px; }
+  .map-piece-location { font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); opacity: 0.65; }
+
+  /* FIX 1: Only one .map-canvas rule, no duplicate wrapper div */
+  .map-canvas { flex: 1; position: relative; overflow: hidden; width: 100%; height: 100%; min-height: 500px; }
+  .map-canvas iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  .map-popup {
+    position: absolute;
+    background: white;
+    border: 1px solid rgba(10,123,131,0.2);
+    border-radius: 4px;
+    padding: 14px 16px;
+    max-width: 220px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: none;
+    z-index: 10;
+    pointer-events: all;
+  }
+  .map-popup.visible { display: block; animation: fadeIn 0.2s ease; }
+  .map-popup-title { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--primary); margin-bottom: 2px; font-weight: 700; line-height: 1.3; }
+  .map-popup-author { font-size: 12px; font-style: italic; color: rgba(10,123,131,0.6); margin-bottom: 3px; }
+  .map-popup-loc { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(10,123,131,0.5); margin-bottom: 10px; }
+  .map-popup-btn { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary-dark); background: var(--gold); border: none; padding: 6px 12px; border-radius: 2px; cursor: pointer; }
+  .map-popup-btn:hover { background: var(--gold-light); }
+
+  @media (max-width: 700px) {
+    .landing-title { font-size: 36px; }
+    .locations-grid { grid-template-columns: 1fr; }
+    .collection-layout { flex-direction: column; }
+    .sidebar { width: 100%; max-height: 38vh; }
+    .map-layout { flex-direction: column; }
+    .map-sidebar { width: 100%; max-height: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ LANDING ══════════════════════════════ -->
+<div id="page-landing" class="page active">
+  <nav class="top-nav">
+    <button class="top-nav-brand" onclick="showPage('landing')" aria-label="The Microclimate Project – go to home">
+      <span aria-hidden="true">SUNY Geneseo</span>The Microclimate Project
+    </button>
+    <div class="top-nav-links" role="navigation" aria-label="Site navigation">
+      <button class="nav-link active" data-page="landing" onclick="showPage('landing')" aria-current="page">Home</button>
+      <button class="nav-link" data-page="collection" onclick="showPage('collection')">Pieces</button>
+      <button class="nav-link" data-page="map" onclick="showPage('map')">Map</button>
+      <button class="nav-link" data-page="about" onclick="showPage('about')">Submissions</button>
+    </div>
+  </nav>
+  <div class="landing-hero">
+    <div class="landing-eyebrow">SUNY Geneseo · Spring 2026</div>
+    <h1 class="landing-title">Poet/Tree + <br> Anthology </h1>
+    <p class="landing-subtitle">creative writing micros<br>that share science</p>
+    <div class="landing-dates">
+      <div>
+        <span class="landing-date-label">Submissions Close</span>
+        <span class="landing-date-value">April 13</span>
+      </div>
+    </div>
+    <br>
+    <button class="landing-cta" onclick="showPage('collection')">Read the Pieces</button>
+    <button class="landing-cta-outline" onclick="showPage('map')">Find Them on Campus</button>
+  </div>
+
+  <div class="landing-body">
+    <div class="landing-section">
+      <div class="landing-section-label">About the Project</div>
+      <h2>Science, in 365 words or less.</h2>
+      <p>The Microclimate Project seeks to promote scientific literacy through creative writing. Whether it's how frogs rely on specific water temperatures or how trees are adapting to changing climates, we want to read it -- and we want to publish it on trees across the Geneseo campus</p>
+      <p>This April, the first annual Poetry/Tree+ Festival will run from April 20th to May 11th. Come find short pieces of prose and poetry, read them, and learn something about the living world around you.</p>
+    </div>
+
+    <hr class="landing-divider">
+
+    <div class="landing-section">
+      <div class="landing-section-label">Timeline</div>
+      <h2>What's happening when</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">March 31</div>
+          <div class="timeline-event">Writing Workshop with Creative Writing Club, led by Casey Dapshi</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">April 13</div>
+          <div class="timeline-event">Priority Submission deadline</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">April 10 - May 11</div>
+          <div class="timeline-event">Poetry-Tree Festival</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">April 27</div>
+          <div class="timeline-event">Forest Meditation walk with Chip Matthews, 2.15-3.15pm</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">May 6</div>
+          <div class="timeline-event">Pop-Up Publishing Workshops, 2pm-3.30pm, ISC Focal Point</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ COLLECTION ══════════════════════════════ -->
+<div id="page-collection" class="page">
+  <nav class="top-nav">
+    <button class="top-nav-brand" onclick="showPage('landing')" aria-label="The Microclimate Project – go to home">
+      <span aria-hidden="true">SUNY Geneseo</span>The Microclimate Project
+    </button>
+    <div class="top-nav-links" role="navigation" aria-label="Site navigation">
+      <button class="nav-link" data-page="landing" onclick="showPage('landing')">Home</button>
+      <button class="nav-link active" data-page="collection" onclick="showPage('collection')" aria-current="page">Pieces</button>
+      <button class="nav-link" data-page="map" onclick="showPage('map')">Map</button>
+      <button class="nav-link" data-page="about" onclick="showPage('about')">Submissions</button>
+    </div>
+  </nav>
+
+  <div class="collection-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="masthead">Collection of Prose &amp; Verse</div>
+        <div class="sidebar-title"></div>
+        <div class="sidebar-subtitle"></div>
+      </div>
+
+      <div class="search-wrap">
+        <label class="search-label" for="search">Search</label>
+        <input class="search-input" id="search" type="text" placeholder="Title or author…" oninput="filterPoems()">
+      </div>
+
+      <div class="filter-tabs" role="tablist" aria-label="Filter pieces by">
+        <button class="filter-tab active" id="tab-author" role="tab" aria-selected="true" aria-controls="filter-menu" onclick="switchTab('author')">Author</button>
+        <button class="filter-tab" id="tab-location" role="tab" aria-selected="false" aria-controls="filter-menu" onclick="switchTab('location')">Location</button>
+        <button class="filter-tab" id="tab-science" role="tab" aria-selected="false" aria-controls="filter-menu" onclick="switchTab('science')">Science</button>
+      </div>
+
+      <div class="nav-section-label" id="filter-label">Filter by Author</div>
+      <div id="filter-menu" class="author-menu" role="listbox" aria-label="Filter options" aria-live="polite"></div>
+    </aside>
+
+    <main class="reader" id="reader" aria-live="polite" aria-label="Selected piece">
+      <div class="empty-state">
+        <div class="empty-glyph" aria-hidden="true">⛰</div>
+        <div class="empty-text">Select a piece to begin reading</div>
+        <div class="empty-sub">Choose from the list on the left</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ MAP ══════════════════════════════ -->
+<div id="page-map" class="page">
+  <nav class="top-nav">
+    <button class="top-nav-brand" onclick="showPage('landing')" aria-label="The Microclimate Project – go to home">
+      <span aria-hidden="true">SUNY Geneseo</span>The Microclimate Project
+    </button>
+    <div class="top-nav-links" role="navigation" aria-label="Site navigation">
+      <button class="nav-link" data-page="landing" onclick="showPage('landing')">Home</button>
+      <button class="nav-link" data-page="collection" onclick="showPage('collection')">Pieces</button>
+      <button class="nav-link active" data-page="map" onclick="showPage('map')" aria-current="page">Map</button>
+      <button class="nav-link" data-page="about" onclick="showPage('about')">Submissions</button>
+    </div>
+  </nav>
+
+  <div class="map-layout">
+    <div class="map-sidebar">
+      <div class="map-sidebar-header">
+        <div class="map-sidebar-title">Pieces on Campus</div>
+        <div class="map-sidebar-sub"></div>
+      </div>
+      <div class="map-piece-list" id="map-piece-list"></div>
+    </div>
+
+    <!-- FIX 1: Single map-canvas div, no duplicate wrapper -->
+    <div class="map-canvas" id="map-canvas">
+<iframe  width="700" height="600" allow="local-network-access; geolocation" title="Map 1.0" src="https://geneseo.maps.arcgis.com/apps/mapviewer/index.html?configurableview=true&webmap=4a31771417d349fd920e85b0a7a4cb64&theme=light&share=true&scroll=false&center=-77.81919075343883,42.79630177813698&scale=2256.9943525" ></iframe>    </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════ ABOUT ══════════════════════════════ -->
+<div id="page-about" class="page">
+  <nav class="top-nav">
+    <button class="top-nav-brand" onclick="showPage('landing')" aria-label="The Microclimate Project – go to home">
+      <span aria-hidden="true">SUNY Geneseo</span>The Microclimate Project
+    </button>
+    <div class="top-nav-links" role="navigation" aria-label="Site navigation">
+      <button class="nav-link" data-page="landing" onclick="showPage('landing')">Home</button>
+      <button class="nav-link" data-page="collection" onclick="showPage('collection')">Pieces</button>
+      <button class="nav-link" data-page="map" onclick="showPage('map')">Map</button>
+      <button class="nav-link active" data-page="about" onclick="showPage('about')" aria-current="page">Submissions</button>
+    </div>
+  </nav>
+
+  <div style="flex:1;overflow-y:auto;background:#ffffff;">
+    <div style="max-width:680px;margin:0 auto;padding:64px 52px 100px;">
+
+      <h1 style="font-family:'Playfair Display',serif;font-size:42px;font-weight:800;color:var(--primary);margin-bottom:24px;letter-spacing:-0.5px;">Submissions</h1>
+
+      <p style="font-family:'EB Garamond',serif;font-size:21px;line-height:1.85;color:var(--primary);margin-bottom:40px;">To Submit <a href="https://docs.google.com/forms/d/1IKgLl0g7suD1t6pHNoE4eBa-S3kCQgtwddiVvTRWjXc/edit?usp=sharing_eil_se_dm&ts=69cc07b7" target="_blank" style="color:var(--primary);font-weight:600;text-decoration:underline;text-underline-offset:3px;">click here</a></p>
+
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:28px;">Perhaps it's the number of trees per person on Earth.</p>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:28px;">Perhaps it's the existence of a sea rose that only releases pollen in response to the vibrations of a specific kind of African bee.</p>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:28px;">We're asking you to share what you know from science through writing short creative pieces, or "micros." Your piece can be prose or poetry; it should be shorter than 365 words.</p>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:28px;">We'll be publishing these on trees around campus in late April to help increase science literacy through creative writing. This "Poet/Tree+ Anthology" will be up for three weeks, heading towards the end of this academic year. This project is part of Ideas That Matter: Climate Change &amp; the Individual, supported by the Science Communication microcredential.</p>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:28px;"><b>We especially invite submissions that help raise awareness of the science around climate change,</b> but welcome any submissions rooted in scientific ideas, terms, and concepts.</p>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:28px;">We're looking for submissions from students, staff, faculty, and community members. You can find resources for sourcing science, gaining inspiration from creative pieces, and identifying some climate/action steps at this website. You can also find out about some writing workshops and Publishing &amp; Creativity Studio opportunities to help you create. For questions, please contact Lytton Smith, <a href="mailto:smith@geneseo.edu" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">smith@geneseo.edu</a>.</p>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:40px;">Perhaps you don't primarily think of yourself as a scientist or as a writer. But we all know the world through what we know of its science, and we all have the potential to weave words together so that someone else can know that science too. Please help us share science and science action through creative writing!</p>
+
+      <hr style="border:none;border-top:1px solid rgba(10,123,131,0.15);margin-bottom:40px;">
+
+      <p style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--primary);opacity:0.5;margin-bottom:10px;">Guidelines</p>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:40px;">Your micro should be up to 365 words long, accompanied by a reliable scientific source supporting the science it shares (see <a href="https://microclimate.geneseo.sunycreate.cloud/sample-page/" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">here</a> for tips or <a href="https://microclimate.geneseo.sunycreate.cloud/call-for-writing/" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">contact us</a>), ideally accompanied by an action step (volunteer at the <a href="https://www.geneseo.edu/sustainability/egarden" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">eGarden</a>; join <a href="https://www.geneseo.edu/beekeeping" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">Geneseo's beekeeping club</a>). For action tips, see <a href="https://microclimate.geneseo.sunycreate.cloud/taking-climate-action/" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">here</a>. In addition to your 365 creative words, provide ~150 words about who you are and why you chose this science. You might find inspiration from the <a href="https://poets.org/treehouse-climate-action-poem-prize" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">Treehouse Climate Action Poem Prize</a>, such as <a href="https://poets.org/poem/global-warming" style="color:var(--primary);text-decoration:underline;text-underline-offset:3px;">this one</a>.</p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════
+// PAGE ROUTING
+// ═══════════════════════════
+window.showPage = function(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    l.classList.toggle('active', l.dataset.page === name);
+  });
+  if (name === 'map') renderMap();
+};
+
+// ═══════════════════════════
+// DATA
+// ═══════════════════════════
+const LOCATIONS = {
+  'college-green': 'College Green',
+  'brodie':        'Brodie Hall',
+  'isc':           'Integrated Science Center',
+  'thoreau-cabin': 'Thoreau-Harding Cabin',
+  'arboretum':     'Arboretum',
+  'wadsworth hall' : 'Wadsworth hall'
+};
+const SCIENCE_TAGS = ['All Topics','Climate Adaptation','Water Systems','Biodiversity','Ecology','Pollution','Forest Fires'];
+
+const POEMS = [
+  { id:1, title:"Yellow Music", author:"Katie Penna", year:2026, location:'College Green', science:'Ecology',
+  stanzas:[
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 48px;font-family:'EB Garamond',serif;font-size:20px;line-height:1.9;color:var(--primary);">
+      <div>
+        My yellow pencil<br>
+        lies<br>
+        abandoned<br>
+        <br>
+        among the paper books<br>
+        and violin bows<br>
+        that rest in a grave<br>
+        of collected junk.<br>
+        <br>
+        My mechanical infant<br>
+        learns to sing<br>
+        from our own melodies—<br>
+        <br>
+        the chorus of<br>
+        subject, verb, object,<br>
+        the cadence of<br>
+        periods and commas,<br>
+        exclamations and<br>
+        semicolons,<br>
+        the symphony<br>
+        of words familiar,<br>
+        yet not my own,<br>
+        a faded photo<br>
+        like the graphite<br>
+        and ink<br>
+        I cannot quite<br>
+        remember.<br>
+        <br>
+        It learns our<br>
+        wrongs<br>
+        and imitates those<br>
+        just as easily<br>
+        as a salutation:<br>
+        <span style="padding-left:2em;font-style:italic;">"Hi, how can I help you today?"</span><br>
+        And like a<br>
+        proud parent,<br>
+        I watch
+      </div>
+      <div>
+        <br>
+        <br>
+        <br>
+        <br>
+        as it writes<br>
+        what I or we<br>
+        were never willing<br>
+        to do.<br>
+        My pencil and I are lost...<br>
+        <span style="padding-left:4em;font-style:italic;">"Here's what I found:"</span><br>
+        Hatchling birds<br>
+        learn to sing<br>
+        the tutor song<br>
+        of the avian choir<br>
+        and of swilling innovation,<br>
+        like my beautiful,<br>
+        baby machine<br>
+        <br>
+        And when they<br>
+        fly<br>
+        to new nests<br>
+        to conduct<br>
+        the next treetop<br>
+        requiem,<br>
+        in time with<br>
+        the present melody,<br>
+        accented with<br>
+        swuawking newness,<br>
+        are the lullabies<br>
+        of their first<br>
+        breath<br>
+        into the silence.<br>
+        <br>
+        I wonder,<br>
+        if songbirds<br>
+        may cry<br>
+        a crescendo of<br>
+        chirruping industry<br>
+        will they recall forgotten symphonies?<br>
+        <br>
+        <div style="text-align:right;">
+          I wonder,<br>
+          will they resurrect<br>
+          yellow music,<br>
+          golden sun?
+        </div>
+      </div>
+    </div>`
+  ],
+},
+  { id:2, title:"Autumnal Tints", author:"Henry David Thoreau", year:1862, location:'college-green', science:'Ecology',
+    stanzas:["Generally, every fruit, on ripening, and just before it falls, when it commences a more independent and individual existence, requiring less nourishment from any source, and that not so much from the earth through its stem as from the sun and air, acquires a bright tint. So do leaves. The physiologist says it is \" due to an increased absorption of oxygen.\"  That is the scientific account of the matter, only a reassertion of the fact. But I am more interested in the rosy cheek than I am to know what particular diet the maiden fed on. The very forest and herbage, the pellicle of the earth, must acquire a bright color, an evidence of its ripeness, as if the globe itself were a fruit on its stem,with ever a check toward the sun."],
+    note:"Published near the end of Thoreau's life, dying from tuberculosis" },
+  { id:3, title:"Wild Apples", author:"Henry David Thoreau", year:1862, location:'college-green', science:'Ecology',
+    stanzas:["Near the beginning of May, we notice little thickets of apple-trees just springing up in the pastures where cattle have been, -as the rocky ones of our Easterbrooks Country, or the top of Nobscot Hill, in Sudbury. One or two of these perhaps survive the drought and other accidents, -their very birthplace defending them against the encroaching grass and some other dangers, at first. In two years' time 't had thus Reached the level of the rocks, Admired the stretching world, Nor feared the wandering flocks. But at this tender age Its sufferings began: There came a browsing ox And cut it down a span. This time, perhaps, the ox does not notice it amid the grass; but the next year, when it has grown more stout, he recognizes it for a fellow-emigrant from the old country, the flavor of whose leaves and twigs he well knows; and though at first he pauses to welcome it, and express his surprise, and gets for answer, \" The same cause that brought you here brought me,\" he nevertheless browses it again, reflecting, it may be, that he has some title to it."],
+    note:"Published near the end of Thoreau's life, dying from tuberculosis" },
+  { id:4, title:"The Succession of Forest Trees", author:"Henry David Thoreau", year:1860, location:'college-green', science:'Ecology',
+    stanzas:["It is true, I have shown that the animals consume a great part of the seeds of trees, and so, at least,effectually prevent their becoming trees, but in all these cases, as I have said, the consumer is compelled to be at the same time the disperser and planter, and this is the tax which he pays to Nature. I think it is Linneaus who says that while the swine is rooting for acorns he is planting acorns."],
+    note:"written with the intent to expreses the importance of planting trees in an ecologically responsible manner" },
+  { id:5, title:"Invade or Evade", author:"Sarah Allam", year:2026, location:'College Green', science:'Ecology',
+    stanzas:["The moment I set foot in elementary school, I felt the eyes. Eyes boring into the back of my head, eyes looking at me, eyes everywhere that I couldn't escape. My skin, a different shade. My hair, a different texture, unruly and misunderstood. Even outside of school, I was the target; it seemed panoptical. I never chose the way I looked; I never chose to stick out like a sore thumb. My parents had no choice but to leave. Where they once called home had become a cesspool of hostility; it was no longer safe. At the same time, the country that was advertised as the \"melting pot of cultures\" was nothing more than a fluke. The melting pot was of screams and despair. A specific demographic could live and breathe easily, the others were forced to go against the grain to even feel the semblance of ease. Constant efforts to push us out continue to bare us down to the bone, yet we must continue to fight. We must continue to fight."],
+    note: `For more regarding the science behind this piece: <a href="https://www.geneseo.edu/news/video-biology-summer-research/">Hoven Lab</a> · <a href="https://www.geneseo.edu/news/investigating-the-spider-that-masquerades-as-an-ant/">Apple Lab</a>`,
+    source: `<a href="https://www.researchgate.net/profile/Florian-Altermatt/publication/379095093_Invasive_species_drive_cross-ecosystem_effects_worldwide/links/681f44a3ded4331557465068/Invasive-species-drive-cross-ecosystem-effects-worldwide.pdf">Invasive species drive cross-ecosystem effects worldwide (2024)</a>`,
+    statement: `Invasive species seldom appear as invasive from the get-go. These invasive effects are often found much later on and are multifaceted. As a child of immigrants, I am unfortunately familiar with being referred to as invasive. However, the difference between me and others who come from families like mine is that we are all of the same species. If anything, the way immigrants are treated in the Western world can be considered invasive, not the fact that families, who may no longer have a safe place to live, need to emigrate and immigrate. No one person can be invasive just by existing. We are all human.`,
+  },
+  { id:6, title:"Before the Burn", author:"Ava Bagley", year:2026, location:'Wadsworth Hall', science:'Forest Fires',
+    stanzas:[
+      `Theo awakens like any other morning, the dull hum of his alarm disrupting the quiet room. He lies there for a moment before throwing off the covers and silencing the clock, his feet meeting the cold floor as he steps out of his room and climbs down the stairs. He heads for the kitchen to pour himself a glass of water, before he even takes a sip his attention is caught as he passes the window. He pauses as he notices the thick metallic air in the distance.`,
+      `"Mom," he yells. "Come look at this."\nSage steps beside him at the window and feels the heat radiating through the glass surface. The sun burning so brightly she has to squint as she glares at the red-tinted, fog-thickened air.\n"What's going on? This isn't normal."\n"Fire weather," she answers, sounding concerned.`,
+      `Those words ripple between them. Theo has heard the stories. Sage has lived them.\n"Do you think we're going to be okay?" Theo asks\n"We will honey, but first, come sit with me. I've been through this before, and I want you to know what to expect."\nTheo, a bit frightened, begins to curl up beside her on the couch, still watching the red haze beyond the glass.`,
+      `Sage's voice drops softly. "When I was your age, a fire swept through the hills near our town. The flames were so high and the smoke so thick, we couldn't see the trees right in front of us. I remember the sparks in the wind and the air burning in my throat. Flames destroyed many homes, claimed countless animals and left hundreds of trees and plants as blackened roots and scorched soil. The world seemed consumed by fire, making it hard to imagine anything green would ever grow again."`,
+      `Theo curls up closer, his head now laying on his mother's chest.\n"But everything ended up being okay, fire is a part of this ecosystem. Plants recover, we rebuild, and new life grows, our job is just to be prepared and protect what we can."\nThey sit together, listening as the wind continues to build outside.\nAnd they wait.`
+    ],
+    note: `To help wildlife affected by forest fires, donate to the <a href="https://www.calfund.org/funds/wildfire-recovery-fund/">Wildlife Recovery Fund</a>`,
+    source: `<a href="https://www.sciencenewstoday.org/the-world-is-burning-new-study-reveals-wildfires-are-4x-worse-than-in-the-1980s"><em>The World Is Burning: New Study Reveals Wildfires Are 4x Worse Than in the 1980s</em></a>`,
+    statement: `My name is Ava Bagley and I am a Junior Business administration and Psychology major here at SUNY Geneseo. I enjoy being active and spending my free time outside/with nature. I wrote this piece to spread awareness about wildfires and the damage/impact they can have on families and the environment as a whole. I hope you find this to be an engaging and fun way to learn new information!`,
+  },
+  { id:7, title:"Scorched", author:"Ariana D'Onofrio", year:2026, location:'Wadsworth Hall', science:'Forest Fires',
+    stanzas:[
+      `I smell the dampened soil as I lower myself near the river rock. Cool waters change direction of flow, pouring over my feet as I step in. My system initially overwhelmed with shivers and tightness in my chest, returns its heartbeat, the blood rushing and pooling through arteries and veins match the sound of the water flowing downstream. Tip-toed steps avoiding sharp rocks, I inch myself toward the center until the water welcomes me, leaving only my head afloat. My face flush with red and sweat seeps between my cracked lips; my taste buds dry with brine.`,
+      `Wind whispers through the leaves of the trees as branches dance forming a kaleidoscope pattern of changing shadows. The world is quiet except for the fluttering leaf that falls into the pool of water, or the sounds of dust carried by a breeze. The animals all find company in silence: a rabbit burrowed in bushes beneath trees, or deer cushioned in oval-shaped beds finding slivers of sunlight that leak through the canopy. The roots of two trees melt into one, anchoring each other in place.`,
+      `But they cannot withstand the scorching fire that barged through.`,
+      `I open my eyes, taking a moment to readjust to the reality that is in front of me. The ground is black and charred. The smell of smoke lingers in the air. Sunlight reaches every inch of the forest floor that is now covered in the corpses of charcoaled trees. What once was a forest lies beaten before me.`,
+      `I hardly return here, but when I do my body burns with anger like the trees that were once burning now burn inside me.`
+    ],
+    note: `To help wildlife affected by forest fires, donate to the <a href="https://www.worldwildlife.org/our-work/forests/deforestation-and-forest-degradation/">World Wildlife Fund</a>`,
+    source: `<a href="https://www.sustainableharvest.org/">sustainableharvest.org</a> · <a href="https://www.rainforest-alliance.org/">rainforest-alliance.org</a>`,
+    statement: `My name is Ariana D'Onofrio, and I am a junior at SUNY Geneseo pursuing a major in neuroscience and a minor in biology. This piece was inspired by the increasing devastation caused by annual forest fires, as well as the growing prevalence of deforestation driven by both direct and indirect human activity. My aim was to capture the diverse ecosystem that exists under the canopy of a forest. These ecosystems, which serve as homes for animal and plant species, are increasingly being destroyed and mistreated. Through this piece, I aimed to emphasize the importance of protecting forests and the species that belong to them.`,
+  },
+  /* FIX 2: Sophia Imbriaco keeps id:9; Herman Keegan moved to id:10; all subsequent ids incremented */
+  { id:8, title:"April 22, 2019", author:"Sophia Imbriaco", year:2026, location:'College Green', science:'Water Systems',
+    stanzas:["The earth spoke on a warm spring day. It whispered. in tremors and shifting gravel, a harmony of squelching mud. If Julie Barrows hadn't been there, kneeling in the rain-cold stream and fishing for twigs, no one would have heard it. She heard it first in her feet, then her damp legs, her racing heart. It was subtle, but it felt like being rearranged. Her eyes were wide as she walked the whole way home, a bent stick still clutched in her fist. Her hair dripped all over the shag rug. She tip-toed to her father reading in his recliner and cupped a hand over his ear. She whispered. But she was young, so her father hummed and told her to go put on some new clothes."],
+  },
+  /* FIX 2: Herman Keegan now has unique id:10 */
+  /* FIX 4: Stanza uses intentional HTML div — no longer escaped by openPoem() */
+  { id:9, title:"[the sea level slowly rises]", author:"Herman Keegan", year:2026, location:'College Green', science:'Climate Adaptation',
+    stanzas:[
+      `<div style="text-align:center;">The sea level slowly rises<br>
+It's a problem that no one realizes<br>
+The environment is slowly dying<br>
+Animals can be heard in pain, screaming, crying<br>
+It's a shame that these people aren't even trying<br>
+But that does not mean sit there grovel and mope<br>
+Because as long as someone cares there really is hope<br>
+So don't cut that woody tree, make sure to rake those<br>
+crunchy leaves, plant those stubby little seeds, and make<br>
+this planet garbage free<br>
+This planet is a home, a home for you and me</div>`
+    ],
+  },
+  { id:10, title:"Rows and Rows of Trees", author:"Saphala Khanal", year:2026, location:'College Green', science:'Biodiversity',
+    stanzas:[
+      `There was once a time when green\nwas not just a memory. It wasn't`,
+      `something we tried to recreate on rooftops.\nIt was everywhere. The weeds on the sidewalk,`,
+      `slicing through the cracks, growing peacefully\nunderneath our feet. But we didn't notice them.`,
+      `We never noticed them. We just assumed\nthey would always be there, like air.`,
+      `Now the last tree in the city stands guarded\nbehind a barrier of polished steel. People line up`,
+      `just to see this tree. They bring their children\nand lift them up so they can touch the bark.`,
+      `All this…for a tree? There used to be forests. Rows\nand rows of mighty trees. Now there is one.`,
+      `If only the trees could speak, maybe they would tell us\nhow they gave us everything. Shade on a hot sunny day.`,
+      `Oxygen to keep us alive. And still humans destroyed them.\nUntil there was almost nothing left.`
+    ],
+  },
+  { id:11, title:"Postcard from the Future", author:"Madison Papucci", year:2026, location:'College Green', science:'Climate Adaptation',
+    stanzas:[
+      `She wanted to be proposed to on a beach.\nBut she was only 17.\nBy the time she was old enough,\nHad a partner,\nHad any money that was left in the world,\nThe beach would be gone.`,
+      `Coral reefs bleached, like your favorite sweater ruined.\nShorelines eroded, eaten up by rising tides.\nCities below water, where children once built sandcastles.\nA proposal under the water, where no one could kneel, no one could breathe.`,
+      `She wanted to get married in a forest\nBut by the time she was old enough,\nHad a partner,\nHad some money,\nThe forest would be gone.`,
+      `When the last tree is cut,\nThe last animal hunted,\nThe last flower picked,\nThere is no forest.\nThere is no love.\nThere is no wedding.`,
+      `Wildfires turning green foliage into dark ash.\nEcosystems become empty.\nSpecies disappearing before everyone could learn their names.`,
+      `She wanted a honeymoon in the mountains\nMaybe she could go skiing, or just enjoy the view\nAgain,\nThat would be quite some time from now`,
+      `The snow would melt.\nGlaciers would shrink into just a memory.\nAnimals would leave, looking for cooler places that no longer exist.`,
+      `The air would thin,\nnot from altitude,\nbut from loss.`,
+      `In reality,\nThere was no mountain getaway waiting for her.`,
+      `She wanted to go to the beach, the forest, the mountains.\nAll the places she thought would wait for her.`,
+      `But the world was changing faster than she was growing up.`,
+      `All she'd get\nwas a postcard from a world\nthat didn't survive long enough for her to grow into it.`
+    ],
+    note: `For a comprehensive look at the effects of climate change look <a href="https://science.nasa.gov/climate-change/effects/">here</a>`,
+    source: `<a href="http://thesolutionsproject.org/info/climate-change-solutions/?gad_source=1&gad_campaignid=22908644141&gbraid=0AAAAADGA3ATF3s1K9D5QecGdBz9MbOXB8&gclid=Cj0KCQjw7cLOBhDmARIsAGsuA0nkQ_cKl4oqF4M1IC5Sekj6BS1aEG1Ocpp8UbZhHg-9eLZAoiy-QFQaAki7EALw_wcB">How to Reverse Global Warming: Climate Change Solutions</a>`,
+    statement: `This piece of writing was inspired by me sitting in the library and staring out the window. I think we take for granted how much we truly have as humans, especially in this day and age. Constant consuming, producing, and buying has destroyed our planet. Most people do not appreciate the natural beauty that is all around us. It existed long before us and may not even be able to exist past us. It is honestly really sad and not many people even care, so if this can convince one person to do something then that will make me happy. I normally don't write things like this piece but I think it is important. It also puts into perspective how important it is to think about the future of our planet. In addition to the steps listed in my action article, I think our campus focusing more on recycling and green energy could be a huge help.`,
+  },
+  { id:12, title:"A City at Night", author:"Lauren Russell", year:2026, location:'College Green', science:'Pollution',
+    stanzas:[
+      `Light trespasses, clutters, glares, overilluminates—\nthe sky at night glows with our excess\nthe stars fight for our attention,\nlosing out to artificial fluorescence.`,
+      `The stars fight for our attention\nthrough a haze and a flood\nof "environmentally friendly" blue light.\nBut no one sees them anymore.`,
+      `And a flood of "environmentally friendly" blue light\ncauses more atmospheric scattering\nand disrupted pineal melatonin rhythms\nat a wavelength of 460 nm`,
+      `and disrupted pineal melatonin rhythms\ncan increase risks of cancer\nmessed-up circadian rhythms\nand cardiovascular disease`,
+      `messed-up circadian rhythms\nlead to insomnia, but\nthere are no more stars\nto find on sleepless nights`,
+      `there are no more stars\nthat once taught us history\nnow the constellations are obscured\nby the glow of metal halide lights`,
+      `now the constellations are obscured\nand their stories lost\nso it's time for a change\nto low pressure sodium lamps`,
+      `so it's time for a change\nto shorter wavelengths\nand it's time to rebuild\nso that lamps don't emit light over the horizontal`,
+      `and it's time to rebuild\nso that when\nthe stars fight for our attention\nwe listen.`
+    ],
+    note: `to help fight light pollution, check out <a href="https://darksky.org/get-involved/">darksky.org</a>`,
+    source: `<a href="https://www.sciencedirect.com/science/article/abs/pii/S030147971100226X?fr=RR-2&ref=pdf_download&rr=9e7d3ba08d5332fd">Light Pollution &amp; Health — ScienceDirect</a>`,
+    statement: `My name is Lauren Russell, and I am an astrophysics major here at Geneseo. Space, and stars specifically, have fascinated me since I was young, and I have always found it distressing how few stars can be seen at night. I love looking for constellations, and I always want to be able to spot them. With this piece, I wanted to raise awareness of not only the disappearing stars, but also the health impacts of light pollution, as well as bring awareness to some of the solutions. My hope is that any language in the piece you didn't understand, you google to get a deeper understanding. On top of affecting humans, light pollution also has an impact on wildlife and ecosystems, and I would encourage you to do your own research on what that looks like.`,
+  },
+  /* FIX 5: statement \n→<br> now handled correctly in openPoem() */
+  { id:13, title:"The Plastic Recycling Dilemma", author:"Merve Yoruk", year:2026, location:'college green', science:'Pollution',
+    stanzas:[
+      `Stumbling out of bed in my pajamas that release microplastics into our waterways with every single wash in the washing machine I walk over to the bathroom in my slippers that I can't recall where I got them. I pick up my plastic toothbrush, which I didn't ask for; the dentist just gave it to me. I use that toothbrush, thinking about all the microplastics releasing into my body and where this toothbrush will end up in a month. I run the plastic bristles of my hairbrush through my hair, listening to each scratch and crack the brush makes as it clashes with my strands. All of this multiplied by billions of people. How do we even tackle that?`,
+      `I reach for my mascara and concealer, both stored in plastic containers. I can't help but think that these containers are not even recyclable, and even if they were, they most likely wouldn't be recycled. The truth is daunting. Despite reading the "recycle me!" and seeing the same recycle labels with the numbers in them, almost none of the plastic we attempt to recycle actually gets recycled. The system is broken. 5% of plastic, if even that, is used to produce new items, but this will only decrease as the amount of plastic in our world increases.`,
+      `Greenwashing, and mislabeling: plastic is not one size fits all. In fact, it's quite the opposite. Plastic comes in thousands of types and cannot be combined through traditional melting methods. And although recycling plastic may seem like a good option, sometimes it isn't. As plastic is reused and degrades it becomes more toxic.`,
+      `But don't be quick to throw out that toothbrush, not just yet, or that mascara. Acknowledge it, use it, do your best to dispose of it. Then focus on the bamboo brush that is compostable, or that stainless steel reusable coffee cup, or the compostable floss, and recyclable makeup, switch to bar soap and ditch the plastic sulfate-filled shampoo.`,
+      `Change is what happens next: opportunities towards a sustainable life don't fade as the problems we face grow more urgent.`
+    ],
+    note: `If you want to help prevent microplastics from being spread on campus, check and fill out this <a href="https://docs.google.com/forms/d/16Od6fdh7bbBSrIkh5HArnudAhOjrNrlmfeRQj7vRnDo/viewform?edit_requested=true">form</a>`,
+    source: `<a href="https://www.npr.org/2022/10/24/1131131088/recycling-plastic-is-practically-impossible-and-the-problem-is-getting-worse"><em>Recycling plastic is practically impossible — and the problem is getting worse</em> (NPR)</a>`,
+    statement: `Plastic in today's world is inevitable. Unfortunately, it is found in quite literally everything and is everywhere. Recently, studies have even shown levels of microplastics in breastmilk. Although it feels impossible to escape plastic, we can work towards sustainability by focusing on changes we can make versus the ones that feel overwhelming and impossible.\n\nA rule of thumb I would like the reader to take away is to first use whatever plastic you have and then make the switch to an alternative option. What matters is what we do moving forward, and if we can do our part individually then as a collective we can make a difference.\n\nI wrote this piece with the intention of it seeming like a daily morning routine to increase the awareness on how much plastic is in our lives. I want the reader to be able to relate to this morning routine, while seeing the problem with the amount of plastic in our day to day lives, and then understand that we can work towards change.\n\nFor action items, I realized that our campus already has recycling bins specifically labeled so that it is easier to recycle, so I wanted to look for an additional step. I noticed that we have a composting program and I believe this ties into the plastic reduction by encouraging those on campus to use compostable items instead of single use plastic, such as the ones CAS offers in the dining halls.`,
+  },
+];
+
+// ═══════════════════════════
+// COLLECTION
+// ═══════════════════════════
+let activeAuthor = null, activeLocation = null, activeScience = null, activeId = null, activeTab = 'author';
+
+function switchTab(tab) {
+  activeTab = tab;
+  activeAuthor = null; activeLocation = null; activeScience = null;
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  const el = document.getElementById('tab-' + tab);
+  el.classList.add('active');
+  el.setAttribute('aria-selected', 'true');
+  buildFilterMenu();
+  showGlossary();
+}
+
+function buildFilterMenu() {
+  const menu = document.getElementById('filter-menu');
+  const label = document.getElementById('filter-label');
+  menu.innerHTML = '';
+
+  const makeBtn = (text, isActive, onClick) => {
+    const btn = document.createElement('button');
+    btn.className = 'author-btn' + (isActive ? ' active' : '');
+    btn.setAttribute('role', 'option');
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    btn.innerHTML = `<span class="dot" aria-hidden="true"></span>${text}`;
+    btn.onclick = onClick;
+    return btn;
+  };
+
+  if (activeTab === 'author') {
+    label.textContent = 'Filter by Author';
+    ['All Authors', ...[...new Set(POEMS.map(p => p.author))].sort()].forEach(a => {
+      const isAll = a === 'All Authors';
+      const isActive = (isAll && !activeAuthor) || activeAuthor === a;
+      menu.appendChild(makeBtn(a, isActive, () => {
+        activeAuthor = isAll ? null : a;
+        buildFilterMenu();
+        isAll ? showGlossary() : showFilteredPoems();
+      }));
+    });
+  } else if (activeTab === 'location') {
+    label.textContent = 'Filter by Location';
+    ['All Locations', ...Object.keys(LOCATIONS)].forEach(loc => {
+      const isAll = loc === 'All Locations';
+      const isActive = (isAll && !activeLocation) || activeLocation === loc;
+      menu.appendChild(makeBtn(isAll ? 'All Locations' : LOCATIONS[loc], isActive, () => {
+        activeLocation = isAll ? null : loc;
+        buildFilterMenu();
+        isAll ? showGlossary() : showFilteredPoems();
+      }));
+    });
+  } else {
+    label.textContent = 'Filter by Science Topic';
+    SCIENCE_TAGS.forEach(tag => {
+      const isAll = tag === 'All Topics';
+      const isActive = (isAll && !activeScience) || activeScience === tag;
+      menu.appendChild(makeBtn(tag, isActive, () => {
+        activeScience = isAll ? null : tag;
+        buildFilterMenu();
+        isAll ? showGlossary() : showFilteredPoems();
+      }));
+    });
+  }
+}
+
+function filterPoems() { showFilteredPoems(); }
+
+function getFiltered() {
+  const q = (document.getElementById('search')?.value || '').toLowerCase().trim();
+  return POEMS.filter(p =>
+    (!q || p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q)) &&
+    (!activeAuthor || p.author === activeAuthor) &&
+    (!activeLocation || p.location === activeLocation) &&
+    (!activeScience || p.science === activeScience)
+  );
+}
+
+function showGlossary() {
+  const q = (document.getElementById('search')?.value || '').trim();
+  if (q) { showFilteredPoems(); return; }
+  const byAuthor = {};
+  POEMS.forEach(p => { if (!byAuthor[p.author]) byAuthor[p.author] = []; byAuthor[p.author].push(p); });
+  const sections = Object.keys(byAuthor).sort().map(author => {
+    const entries = byAuthor[author].map(p => `
+      <button onclick="openPoem(${p.id})" style="cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(10,123,131,0.1);gap:16px;width:100%;background:none;border-left:none;border-right:none;border-top:none;text-align:left;" aria-label="Read ${p.title} by ${p.author}">
+        <div>
+          <span style="font-family:'Playfair Display',serif;font-size:17px;color:var(--primary);">${p.title}</span>
+          <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--secondary);opacity:0.7;" aria-hidden="true">${LOCATIONS[p.location] || ''}</span>
+            <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#7a6010;opacity:0.8;" aria-hidden="true">${p.science}</span>
+          </div>
+        </div>
+        <span style="font-family:'Cinzel',serif;font-size:10px;color:rgba(10,123,131,0.5);letter-spacing:1px;white-space:nowrap;" aria-hidden="true">${p.year}</span>
+      </button>`).join('');
+    return `<div style="margin-bottom:36px;"><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--primary);opacity:0.5;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--primary);">${author}</div>${entries}</div>`;
+  }).join('');
+  document.getElementById('reader').innerHTML = `
+    <div style="max-width:620px;width:100%;padding:60px 52px 80px;">
+      <h1 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:800;color:var(--primary);margin-bottom:6px;">All Pieces</h1>
+      <p style="font-family:'EB Garamond',serif;font-size:15px;font-style:italic;color:rgba(10,123,131,0.55);margin-bottom:40px;">${POEMS.length} works · click any title to read</p>
+      <hr style="border:none;border-top:1px solid rgba(10,123,131,0.15);margin-bottom:40px;">
+      ${sections}
+    </div>`;
+}
+
+function showFilteredPoems() {
+  const filtered = getFiltered();
+  const q = (document.getElementById('search')?.value || '').trim();
+  const hasFilter = activeAuthor || activeLocation || activeScience || q;
+  if (!hasFilter) { showGlossary(); return; }
+  if (!filtered.length) {
+    document.getElementById('reader').innerHTML = `<div class="empty-state"><div class="empty-glyph" aria-hidden="true">⛰</div><div class="empty-text">No pieces found</div></div>`;
+    return;
+  }
+  if (filtered.length === 1 && !activeAuthor && !activeLocation && !activeScience) { openPoem(filtered[0].id); return; }
+  const items = filtered.map(p => `
+    <button onclick="openPoem(${p.id})" style="cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(10,123,131,0.1);gap:16px;width:100%;background:none;border-left:none;border-right:none;border-top:none;text-align:left;" aria-label="Read ${p.title} by ${p.author}">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;color:var(--primary);">${p.title}</div>
+        <div style="font-size:13px;font-style:italic;color:rgba(10,123,131,0.6);margin-top:2px;" aria-hidden="true">${p.author}</div>
+        <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;" aria-hidden="true">
+          <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--secondary);opacity:0.7;">${LOCATIONS[p.location] || ''}</span>
+          <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#7a6010;opacity:0.8;">${p.science}</span>
+        </div>
+      </div>
+      <span style="font-family:'Cinzel',serif;font-size:10px;color:rgba(10,123,131,0.5);letter-spacing:1px;white-space:nowrap;" aria-hidden="true">${p.year}</span>
+    </button>`).join('');
+  document.getElementById('reader').innerHTML = `<div style="max-width:620px;width:100%;padding:60px 52px 80px;">${items}</div>`;
+}
+
+function openPoem(id) {
+  activeId = id;
+  const poem = POEMS.find(p => p.id === id);
+  if (!poem) return;
+  document.title = `${poem.title} – The Microclimate Project`;
+
+  /*
+   * FIX 4: Stanzas that already contain HTML (like Herman Keegan's centered div)
+   * must NOT be escaped. We only escape & to avoid double-encoding ampersands
+   * in plain-text stanzas. The \n→<br> replacement is applied after, which is
+   * harmless inside HTML stanzas (no bare \n remain) and correct for plain-text ones.
+   */
+  const renderStanza = s => s.trim().startsWith('<')
+    ? s
+    : s.replace(/&(?![a-zA-Z#][a-zA-Z0-9#]{1,6};)/g, '&amp;').replace(/\n/g,'<br>');
+  const stanzasHtml = poem.stanzas.map(s =>
+    `<div class="stanza">${renderStanza(s)}</div>`
+  ).join('');
+
+  /* FIX 5: Apply \n→<br> to statement text so multi-paragraph statements render correctly */
+  const statementHtml = poem.statement
+    ? poem.statement.replace(/&(?![a-zA-Z#][a-zA-Z0-9#]{1,6};)/g, '&amp;').replace(/\n/g, '<br>')
+    : '';
+
+  const innerClass = poem.wide ? 'reader-inner reader-inner--wide' : 'reader-inner';
+  document.getElementById('reader').innerHTML = `
+    <div class="${innerClass}">
+      <h1 class="poem-title">${poem.title}</h1>
+      <div class="poem-meta">
+        <span class="poem-author">${poem.author}</span>
+        <span class="meta-dot" aria-hidden="true">·</span>
+        <span class="poem-year">${poem.year}</span>
+      </div>
+      <div class="poem-tags">
+        <span class="poem-tag location"><span aria-hidden="true">📍</span> ${LOCATIONS[poem.location] || poem.location}</span>
+        <span class="poem-tag science">${poem.science}</span>
+      </div>
+      <hr class="poem-divider" aria-hidden="true"/>
+      <div class="poem-body">${stanzasHtml}</div>
+      ${poem.note ? `<div class="poem-footer">${poem.note}</div>` : ''}
+      ${poem.source ? `<div class="poem-source"><div class="poem-source-label">Source the Science</div><div class="poem-source-body">${poem.source}</div></div>` : ''}
+      ${poem.statement ? `<div class="poem-statement"><div class="poem-statement-label">Author's Statement</div><div class="poem-statement-body">${statementHtml}</div></div>` : ''}
+    </div>`;
+  document.getElementById('reader').scrollTop = 0;
+}
+
+function openAbout() {
+  activeAuthor = null; activeId = null;
+  buildFilterMenu();
+  document.getElementById('reader').innerHTML = `
+    <div style="max-width:620px;width:100%;padding:60px 52px 80px;">
+      <h1 style="font-family:'Playfair Display',serif;font-size:38px;font-weight:800;color:var(--primary);margin-bottom:32px;letter-spacing:-0.5px;">About</h1>
+      <h2 style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--primary);opacity:0.55;margin-bottom:10px;">The Project</h2>
+      <p style="font-family:'EB Garamond',serif;font-size:19px;line-height:1.85;color:var(--primary);margin-bottom:40px;">The Microclimate Project seeks to promote scientific literacy through creative writing.</p>
+      <hr style="border:none;border-top:1px solid rgba(10,123,131,0.15);margin-bottom:40px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--primary);opacity:0.55;margin-bottom:16px;">Campus Map</h2>
+      <p style="font-family:'EB Garamond',serif;font-size:16px;line-height:1.7;color:rgba(10,123,131,0.65);font-style:italic;">See the <button onclick="showPage('map')" style="background:none;border:none;cursor:pointer;color:var(--primary);text-decoration:underline;text-underline-offset:3px;font-family:'EB Garamond',serif;font-size:16px;font-style:italic;">Map page</button> to find where each piece is posted on campus.</p>
+    </div>`;
+  document.getElementById('reader').scrollTop = 0;
+}
+
+// ═══════════════════════════
+// MAP
+// ═══════════════════════════
+let activeMapId = null;
+
+function renderMap() {
+  const list = document.getElementById('map-piece-list');
+  list.innerHTML = POEMS.map(p => `
+    <button class="map-piece-item${activeMapId === p.id ? ' active' : ''}" onclick="selectMapPiece(${p.id})" aria-pressed="${activeMapId === p.id ? 'true' : 'false'}" aria-label="Locate ${p.title} by ${p.author} on map">
+      <div class="map-piece-title">${p.title}</div>
+      <div class="map-piece-author" aria-hidden="true">${p.author}</div>
+      <div class="map-piece-location" aria-hidden="true">${LOCATIONS[p.location] || p.location}</div>
+    </button>`).join('');
+}
+
+function selectMapPiece(id) {
+  activeMapId = id;
+  renderMap();
+  showPage('collection');
+  openPoem(id);
+}
+
+window.selectMapPiece = selectMapPiece;
+
+// ═══════════════════════════
+// INIT
+// ═══════════════════════════
+window.switchTab = switchTab;
+window.filterPoems = filterPoems;
+window.openPoem = openPoem;
+window.openAbout = openAbout;
+
+buildFilterMenu();
+showGlossary();
+</script>
+</body>
+</html>
